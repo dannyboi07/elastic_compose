@@ -1,0 +1,27 @@
+[package]
+name = "elastic_compose"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+axum = "0.7.2"
+clap = { version = "4.4.11", features = ["derive"] }
+# http-body-util = "0.1.0"
+# hyper = { version = "1.1.0", features = ["full"] }
+# hyper-util = { version = "0.1.2", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_yaml = "0.9"
+tokio = { version = "1.35.1", features = ["full"] }
+tower = "0.4.13"
+tower-http = { version = "0.5.0", features = ["trace", "timeout"] }
+tracing-subscriber = "0.3.18"
+
+[[bin]]
+name = "elastic-compose"
+path = "src/main.rs"
+
+[[bin]]
+name = "elastic-compose-service"
+path = "src/service.rs"
