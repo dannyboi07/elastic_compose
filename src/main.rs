@@ -37,12 +37,12 @@ fn main() {
                         .status()
                     {
                         Err(err) => {
-                            println!("Failed to start service, err: {}", err);
+                            println!("Failed to start the service, err: {}", err);
                             return;
                         }
                         Ok(status) => {
                             if !status.success() {
-                                println!("Failed to start service");
+                                println!("Failed to start the service");
                                 return;
                             }
                             println!("Initiated service")
@@ -51,6 +51,23 @@ fn main() {
                 }
             };
         }
-        cli::Command::Stop => {}
+        cli::Command::Stop => {
+            match process::Command::new("systemd")
+                .args(["stop", "elastic-compose-service"])
+                .status()
+            {
+                Err(err) => {
+                    println!("Failed to stop the service, err: {}", err);
+                    return;
+                }
+                Ok(status) => {
+                    if !status.success() {
+                        println!("Failed to stop the service");
+                        return;
+                    }
+                    println!("Service stopped")
+                }
+            }
+        }
     }
 }
