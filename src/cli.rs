@@ -23,8 +23,8 @@ struct ClapArgs {
     /// Command to run
     #[arg(short, value_enum)] // , possible_values = &["start", "stop"]
     command: ClapCommand,
-    /// Port for the service's server to listen on
-    #[arg(long)] //, default_value = "8080"
+    /// Port for the service's server to listen on (defaults to 8080)
+    #[arg(long)]
     port: Option<u16>,
     // Path to the config file
     // #[arg(short, default_value = "config.yaml")]

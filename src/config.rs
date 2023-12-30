@@ -1,6 +1,3 @@
-// #[path = "cli.rs"]
-// mod cli;
-
 use core::fmt;
 use serde::{Deserialize, Serialize};
 use serde_yaml;
