@@ -69,6 +69,7 @@ pub enum ConfigError {
     FailedToReadProjectConfig(String, String),
     InvalidProjectConfig(String, String),
     FailedToSaveConfig(String),
+    FailedToDeleteConfig(String),
 }
 
 impl fmt::Display for ConfigError {
@@ -109,6 +110,13 @@ impl fmt::Display for ConfigError {
                 writeln!(
                     f,
                     "Failed to save config to: {}, err: {}",
+                    SERVICE_CONF_PATH, err
+                )
+            }
+            ConfigError::FailedToDeleteConfig(err) => {
+                writeln!(
+                    f,
+                    "Failed to delete config from: {}, err: {}",
                     SERVICE_CONF_PATH, err
                 )
             }
@@ -178,7 +186,7 @@ impl Config {
         })
     }
 
-    pub fn flush(&self) -> Result<(), ConfigError> {
+    pub fn flush_to_disk(&self) -> Result<(), ConfigError> {
         match fs::OpenOptions::new()
             .write(true)
             .create(true)
@@ -193,7 +201,14 @@ impl Config {
         }
     }
 
-    pub fn read_file() -> Result<Config, ConfigError> {
+    pub fn read_from_disk() -> Result<Config, ConfigError> {
         return Config::read_service_config();
+    }
+
+    pub fn delete_from_disk(&self) -> Result<(), ConfigError> {
+        match std::fs::remove_file(SERVICE_CONF_PATH) {
+            Err(err) => return Err(ConfigError::FailedToDeleteConfig(err.to_string())),
+            Ok(()) => Ok(()),
+        }
     }
 }

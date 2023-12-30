@@ -1,13 +1,9 @@
-// mod cmd;
 mod cli;
 mod config;
 mod server;
 
-// use axum::{http::status, Error};
-// use cli::{Args, ValidationError, Command};
 use config::Config;
-// use server::{Server, ServerError};
-use std::{error, process};
+use std::process;
 
 // #[tokio::main]
 fn main() {
@@ -34,7 +30,7 @@ fn main() {
                 }
                 Ok(config) => config,
             };
-            match config.flush() {
+            match config.flush_to_disk() {
                 Err(err) => {
                     println!("{}", err);
                     return;

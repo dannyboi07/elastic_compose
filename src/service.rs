@@ -11,7 +11,7 @@ use server::{Server, ServerError};
 
 fn main() -> ExitCode {
     // let args = Args::get(config::Mode::Service);
-    let config = match Config::read_file() {
+    let config = match Config::read_from_disk() {
         Err(config_error) => {
             println!("{}", config_error);
             return ExitCode::FAILURE;
