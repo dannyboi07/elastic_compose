@@ -19,7 +19,11 @@ fn main() -> ExitCode {
         Ok(config) => config,
     };
 
-    match Server::new(config.port).start() {
+    let shutdown_handler = || Config::delete_from_disk().unwrap_or_else(|err| println!("{}", err));
+    match Server::new(config.port)
+        .with_shutdown_handler(shutdown_handler)
+        .start()
+    {
         Err(err) => match err {
             ServerError::ListenError(err) | ServerError::ServeError(err) => {
                 println!("{}", err);

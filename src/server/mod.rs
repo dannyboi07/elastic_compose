@@ -32,7 +32,7 @@ impl fmt::Display for ServerError {
 
 pub struct Server {
     port: u16,
-    shutdown_handler: Option<fn()>,
+    shutdown_handler: Option<Box<dyn Fn() + Send>>,
 }
 
 impl Server {
@@ -62,8 +62,9 @@ impl Server {
         };
     }
 
-    pub fn with_shutdown_handler(&mut self, f: fn()) {
-        self.shutdown_handler = Some(f)
+    pub fn with_shutdown_handler(mut self, f: impl Fn() + Send + 'static) -> Self {
+        self.shutdown_handler = Some(Box::new(f));
+        return self;
     }
 
     /// Consumes `self`!
@@ -82,7 +83,7 @@ impl Server {
         let router = Server::mount_middlewares(Server::get_router());
         println!("Server starting on port: {}...", self.port);
         match axum::serve(listener, router)
-            .with_graceful_shutdown(self.handle_shutdown_signal()) // Consumption of `self`! Consuming seelf instead of using references since `with_graceful_shutdown` only accepts `impl Future` instead of `&impl Future`
+            .with_graceful_shutdown(self.handle_shutdown_signal()) // Consumption of `self`! Consuming self instead of using references since `with_graceful_shutdown` only accepts `impl Future` instead of `&impl Future`
             .await
         {
             Err(err) => return Err(ServerError::ServeError(err.to_string())),
@@ -95,7 +96,7 @@ impl Server {
     }
 
     fn handle_shutdown_cleanup(&self) {
-        if let Some(handler) = self.shutdown_handler {
+        if let Some(handler) = &self.shutdown_handler {
             handler();
         };
     }

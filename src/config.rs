@@ -205,7 +205,7 @@ impl Config {
         return Config::read_service_config();
     }
 
-    pub fn delete_from_disk(&self) -> Result<(), ConfigError> {
+    pub fn delete_from_disk() -> Result<(), ConfigError> {
         match std::fs::remove_file(SERVICE_CONF_PATH) {
             Err(err) => return Err(ConfigError::FailedToDeleteConfig(err.to_string())),
             Ok(()) => Ok(()),
