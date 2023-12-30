@@ -5,7 +5,6 @@ mod server;
 use config::Config;
 use std::process;
 
-// #[tokio::main]
 fn main() {
     let args = match cli::Args::get() {
         Err(err) => match err {
@@ -57,45 +56,4 @@ fn main() {
         }
         cli::Command::Stop => {}
     }
-
-    // let config = match Config::new_from_cmd_args(&args) {
-    //     Err(config_error) => {
-    //         println!("{}", config_error);
-    //         // return ExitCode::FAILURE;
-    //     }
-    //     Ok(config) => config,
-    // };
-
-    // if config.projects.len() == 0 {
-    //     println!("No projects to watch, exiting...");
-    // return ExitCode::SUCCESS;
-    // }
-
-    // match Server::new(config.port).start().await {
-    //     Err(err) => match err {
-    //         ServerError::ListenError(err) | ServerError::ServeError(err) => {
-    //             println!("{}", err);
-    //             return ExitCode::FAILURE;
-    //         }
-    //     },
-    //     Ok(_) => {}
-    // };
-
-    // To remove exit
-    // ExitCode::SUCCESS
 }
-
-// fn start_service() -> Result<(), error::Error> {
-//     match process::Command::new("systemd")
-//         .args(["start", "elastic-compose-service"])
-//         .status()
-//     {
-//         Err(err) => return Err(error::Error::new(err.to_string())),
-//         Ok(status) => {
-//             if !status.success() {
-//                 return Err(error::Error::new("Failed to start service"));
-//             }
-//             return Ok(());
-//         }
-//     };
-// }

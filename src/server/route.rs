@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use axum::routing::{get, post, MethodRouter};
+use axum::routing::{get, MethodRouter};
 
 pub struct BasicRouter {
     pub routes: HashMap<&'static str, MethodRouter>,

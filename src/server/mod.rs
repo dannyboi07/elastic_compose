@@ -83,7 +83,7 @@ impl Server {
         let router = Server::mount_middlewares(Server::get_router());
         println!("Server starting on port: {}...", self.port);
         match axum::serve(listener, router)
-            .with_graceful_shutdown(self.handle_shutdown_signal()) // Consumption of `self`! Consuming self instead of using references since `with_graceful_shutdown` only accepts `impl Future` instead of `&impl Future`
+            .with_graceful_shutdown(self.handle_shutdown_signal()) // Moving of `self`! Moving self instead of using references since `with_graceful_shutdown` only accepts `impl Future` instead of `&impl Future`
             .await
         {
             Err(err) => return Err(ServerError::ServeError(err.to_string())),

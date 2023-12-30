@@ -54,13 +54,7 @@ pub struct Config {
     pub projects: Vec<Project>,
 }
 
-// pub enum ArgType<'a> {
-//     App(&'a super::cmd::AppArgs),
-//     Service(&'a super::cmd::ServiceArgs),
-// }
-
 pub enum ConfigError {
-    // MissingPort,
     FailedToReadConfig(String),
     InvalidConfig(String),
     FailedToReadProjectConfig(String, String),
@@ -72,13 +66,6 @@ pub enum ConfigError {
 impl fmt::Display for ConfigError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            // ConfigError::MissingPort => {
-            //     writeln!(
-            //         f,
-            //         "Missing 'port' arg, defaulting to port: {}",
-            //         DEFAULT_SERVICE_PORT
-            //     )
-            // },
             ConfigError::FailedToReadConfig(err) => {
                 writeln!(
                     f,
