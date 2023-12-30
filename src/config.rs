@@ -1,3 +1,4 @@
+use crate::cli;
 use core::fmt;
 use serde::{Deserialize, Serialize};
 use serde_yaml;
@@ -139,7 +140,7 @@ impl Config {
         }
     }
 
-    pub fn new(args: &super::cli::Args) -> Result<Config, ConfigError> {
+    pub fn new(args: &cli::Args) -> Result<Config, ConfigError> {
         let mut projects: Vec<Project> = Vec::new();
 
         // Unwrap here is sure not to fail according to the app's flow

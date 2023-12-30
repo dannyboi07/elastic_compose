@@ -1,11 +1,6 @@
-mod cli;
-mod config;
-mod server;
-
+use elastic_compose::config::Config;
+use elastic_compose::server::{Server, ServerError};
 use std::process::ExitCode;
-
-use config::Config;
-use server::{Server, ServerError};
 
 fn main() -> ExitCode {
     let config = match Config::read_from_disk() {

@@ -1,8 +1,5 @@
-mod cli;
-mod config;
-mod server;
-
-use config::Config;
+use elastic_compose::cli;
+use elastic_compose::config::Config;
 use std::process;
 
 fn main() {
