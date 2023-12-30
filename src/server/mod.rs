@@ -8,6 +8,7 @@ use std::{
     net::{Ipv4Addr, SocketAddrV4},
     time::Duration,
 };
+use tokio::signal;
 use tower::ServiceBuilder;
 use tower_http::{timeout::TimeoutLayer, trace::TraceLayer};
 
@@ -31,7 +32,7 @@ impl fmt::Display for ServerError {
 
 pub struct Server {
     port: u16,
-    // router: Router,
+    shutdown_handler: Option<fn()>,
 }
 
 impl Server {
@@ -45,21 +46,29 @@ impl Server {
         return router;
     }
 
-    fn mount_middlewares(router: &mut Router) -> Router {
+    fn mount_middlewares(router: Router) -> Router {
         tracing_subscriber::fmt::init();
 
-        return std::mem::take(router)
+        return router
             .layer(ServiceBuilder::new())
             .layer(TraceLayer::new_for_http())
             .layer(TimeoutLayer::new(Duration::from_secs(5)));
     }
 
     pub fn new(port: u16) -> Server {
-        return Server { port };
+        return Server {
+            port,
+            shutdown_handler: None,
+        };
     }
 
+    pub fn with_shutdown_handler(&mut self, f: fn()) {
+        self.shutdown_handler = Some(f)
+    }
+
+    /// Consumes `self`!
     #[tokio::main]
-    pub async fn start(&self) -> Result<(), ServerError> {
+    pub async fn start(self) -> Result<(), ServerError> {
         let listener = match tokio::net::TcpListener::bind(SocketAddrV4::new(
             Ipv4Addr::new(0, 0, 0, 0),
             self.port,
@@ -70,15 +79,54 @@ impl Server {
             Ok(listener) => listener,
         };
 
-        let router = Server::mount_middlewares(&mut Server::get_router());
-
-        match axum::serve(listener, router).await {
+        let router = Server::mount_middlewares(Server::get_router());
+        println!("Server starting on port: {}...", self.port);
+        match axum::serve(listener, router)
+            .with_graceful_shutdown(self.handle_shutdown_signal()) // Consumption of `self`! Consuming seelf instead of using references since `with_graceful_shutdown` only accepts `impl Future` instead of `&impl Future`
+            .await
+        {
             Err(err) => return Err(ServerError::ServeError(err.to_string())),
             Ok(_) => {
-                println!("Server started on port {}", self.port);
+                println!("Server shutdown");
             }
         };
 
         return Ok(());
+    }
+
+    fn handle_shutdown_cleanup(&self) {
+        if let Some(handler) = self.shutdown_handler {
+            handler();
+        };
+    }
+
+    async fn handle_shutdown_signal(self) {
+        let ctrl_c = async {
+            signal::ctrl_c()
+                .await
+                .expect("Failed to install Ctrl+C handler")
+        };
+
+        #[cfg(unix)]
+        let terminate = async {
+            signal::unix::signal(signal::unix::SignalKind::terminate())
+                .expect("Failed to install SIGTERM handler")
+                .recv()
+                .await
+        };
+
+        #[cfg(not(unix))]
+        let terminate = std::future::pending::<()>();
+
+        tokio::select! {
+            _ = ctrl_c => {
+                println!("Received Ctrl+C, shutting down...");
+                self.handle_shutdown_cleanup();
+            },
+            _ = terminate => {
+                println!("Received SIGTERM, shutting down...");
+                self.handle_shutdown_cleanup();
+            },
+        }
     }
 }
