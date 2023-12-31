@@ -31,6 +31,7 @@ pub struct ECRConfig {
 }
 
 #[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "lowercase")]
 pub enum SourceEnum {
     ECR,
     VCS,
