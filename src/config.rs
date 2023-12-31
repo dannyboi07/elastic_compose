@@ -129,15 +129,36 @@ impl Config {
                     err.to_string(),
                 ))
             }
-            Ok(file) => match serde_yaml::from_reader(file) {
-                Err(err) => {
-                    return Err(ConfigError::InvalidProjectConfig(
-                        path.clone(),
-                        err.to_string(),
-                    ))
+            Ok(file) => {
+                let project_config: ProjectConfig = match serde_yaml::from_reader(file) {
+                    Err(err) => {
+                        return Err(ConfigError::InvalidProjectConfig(
+                            path.clone(),
+                            err.to_string(),
+                        ))
+                    }
+                    Ok(config) => config,
+                };
+                match project_config.source {
+                    SourceEnum::ECR => {
+                        if project_config.ecr.is_none() {
+                            return Err(ConfigError::InvalidProjectConfig(
+                                path.clone(),
+                                "missing ECR config, for source set to ECR".to_string(),
+                            ));
+                        }
+                    }
+                    SourceEnum::VCS => {
+                        if project_config.vcs.is_none() {
+                            return Err(ConfigError::InvalidProjectConfig(
+                                path.clone(),
+                                "missing VCS config, for source set to ECR".to_string(),
+                            ));
+                        }
+                    }
                 }
-                Ok(config) => Ok(config),
-            },
+                Ok(project_config)
+            }
         }
     }
 
