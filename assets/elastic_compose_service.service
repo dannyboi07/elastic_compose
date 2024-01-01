@@ -1,0 +1,12 @@
+[Unit]
+Description=Elastic Compose Service, handles the CI/CD pipeline for multiple projects, through a VCS or ECR
+
+[Service]
+WorkingDirectory=/var/lib/elastic_compose
+ExecStart=/usr/bin/elastic_compose_service
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=ecs
+
+[Install]
+WantedBy=multi-user.target
